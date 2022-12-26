@@ -9,7 +9,6 @@ map = np.random.randint(1, maxVal, size = (maxVal, maxVal))
 
 current_cmap = plt.cm.Blues
 cmap = mpl.cm.get_cmap("Blues").copy()
-cmap.set_bad(color = 'red')
 initialPlot.matshow(map, cmap = plt.cm.Blues, vmin = 0, vmax = maxVal * 2)
 
 # Initialize auxiliary arrays
@@ -25,22 +24,22 @@ count = 0
 # Loop Dijkstra until reaching the target cell
 
 while not finished:
-    # move to x + 1, y
+    # Checks the adjacent nodes to the current one and moves to the smallest in the direction of the goal.
     if x < maxVal - 1:
         if distMap[x + 1, y] > map[x + 1, y] + distMap[x, y] and not visited[x + 1, y]:
             distMap[x + 1, y] = map[x + 1, y] + distMap[x, y]
             originMap[x + 1, y] = np.ravel_multi_index([x, y], (maxVal, maxVal))
-    # move to x - 1, y
+
     if x > 0:
         if distMap[x - 1, y] > map[x - 1, y] + distMap[x, y] and not visited[x - 1, y]:
             distMap[x - 1, y] = map[x - 1, y] + distMap[x, y]
             originMap[x - 1, y] = np.ravel_multi_index([x, y], (maxVal, maxVal))
-    # move to x, y + 1
+
     if y < maxVal - 1:
         if distMap[x, y + 1] > map[x, y + 1] + distMap[x, y] and not visited[x, y + 1]:
             distMap[x, y + 1] = map[x, y + 1] + distMap[x, y]
             originMap[x, y + 1] = np.ravel_multi_index([x, y], (maxVal, maxVal))
-    # move to x, y - 1
+
     if y > 0:
         if distMap[x, y - 1] > map[x, y - 1] + distMap[x, y] and not visited[x, y - 1]:
             distMap[x, y - 1] = map[x, y - 1] + distMap[x, y]
@@ -60,31 +59,32 @@ while not finished:
 
 # Start backtracking to plot the path
 
-matTemp = map.astype(float)
+mapTemp = map.astype(float)
 x, y = maxVal - 1, maxVal - 1
 path = []
-matTemp[int(x), int(y)] = np.nan
+mapTemp[int(x), int(y)] = np.nan
 
 while x > 0.0 or y > 0.0:
     path.append([int(x), int(y)])
     xxyy = np.unravel_index(int(originMap[int(x), int(y)]), (maxVal, maxVal))
     x, y = xxyy[0], xxyy[1]
-    matTemp[int(x), int(y)] = np.nan
-path.append([int(x), int(y)])
+    mapTemp[int(x), int(y)] = np.nan
+    path.append([int(x), int(y)])
 
 # Output and visualization of the path
 
 current_cmap = plt.cm.Blues
 cmap = mpl.cm.get_cmap("Blues").copy()
-cmap.set_bad(color='red')
-fig, newPlot = plt.subplots(figsize=(8, 8))
-newPlot.matshow(matTemp, cmap=plt.cm.Blues, vmin=0, vmax=20)
+myColour = cmap.set_bad(color = 'red')
+fig, newPlot = plt.subplots(figsize = (8, 8))
+newPlot.matshow(mapTemp, cmap = myColour, vmin = 0, vmax = 20)
 for i in range(maxVal):
     for j in range(maxVal):
         c = map[j, i]
-        newPlot.text(i, j, str(c), va='center', ha='center')
+        newPlot.text(i, j, str(c), va = 'center', ha = 'center')
 
 print('The path length is: ' + str(distMap[maxVal - 1, maxVal - 1]))
+print('The mean path should have been: ' + str(maxVal * maxVal))
 
 newPlot = plt.imshow(map, cmap)
 newPlot = plt.show()
