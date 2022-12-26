@@ -2,14 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-fig, initialPlot = plt.subplots(figsize = (10, 10))
 minVal = 0
 maxVal = 10
 map = np.random.randint(1, maxVal, size = (maxVal, maxVal))
-
-current_cmap = plt.cm.Blues
-cmap = mpl.cm.get_cmap("Blues").copy()
-initialPlot.matshow(map, cmap = plt.cm.Blues, vmin = 0, vmax = maxVal * 2)
 
 # Initialize auxiliary arrays
 
@@ -76,15 +71,15 @@ while x > 0.0 or y > 0.0:
 current_cmap = plt.cm.Blues
 cmap = mpl.cm.get_cmap("Blues").copy()
 myColour = cmap.set_bad(color = 'red')
-fig, newPlot = plt.subplots(figsize = (8, 8))
-newPlot.matshow(mapTemp, cmap = myColour, vmin = 0, vmax = 20)
+fig, plot = plt.subplots(figsize = (8, 8))
+plot.matshow(mapTemp, cmap = myColour, vmin = 0, vmax = 20)
 for i in range(maxVal):
     for j in range(maxVal):
         c = map[j, i]
-        newPlot.text(i, j, str(c), va = 'center', ha = 'center')
+        plot.text(i, j, str(c), va ='center', ha ='center')
 
 print('The path length is: ' + str(distMap[maxVal - 1, maxVal - 1]))
 print('The mean path should have been: ' + str(maxVal * maxVal))
 
-newPlot = plt.imshow(map, cmap)
-newPlot = plt.show()
+plot = plt.imshow(map, cmap)
+plot = plt.show()
