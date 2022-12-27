@@ -1,25 +1,17 @@
-import traverse
-from PyQt5.QtWidgets import QApplication, QMainWindow, QComboBox, QPushButton
+from tkinter import *
+from subprocess import call
 
-class UI(QMainWindow):
-    def init(self):
-        super().init()
-        self.initUI()
+def click():
+    call(["python", "traverse.py"])
 
-    def initUI(self):
-        # create a combo box for selecting the game mode
-        self.mode_combo_box = QComboBox(self)
-        self.mode_combo_box.addItem("Traverse")
-        self.mode_combo_box.move(50, 50)
+window = Tk(className="Task 1")
+window.geometry("300x300")
+window.configure(bg="black")
 
-        # create a button for starting the game
-        self.start_button = QPushButton(traverse, self)
-        self.start_button.move(50, 150)
+button = Button(window, text="Traverse", command=click, font="Arial", fg="white", bg="black", activeforeground="black", activebackground="white")
+button.place(x=150, y = 125)
+button.pack()
 
-app = QApplication([])
-window = UI();
-window.setGeometry(300, 300, 300, 300)
-window.setWindowTitle("UI")
-window.show()
-app.exec_()
+# idea is to add other buttons for other traverse options (e.g with obstacles)
+window.mainloop()
 
