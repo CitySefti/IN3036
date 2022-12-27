@@ -68,18 +68,16 @@ while x > 0.0 or y > 0.0:
 
 # Output and visualization of the path
 
-current_cmap = plt.cm.Blues
-cmap = mpl.cm.get_cmap("Blues").copy()
-myColour = cmap.set_bad(color = 'red')
-fig, plot = plt.subplots(figsize = (8, 8))
-plot.matshow(mapTemp, cmap = myColour, vmin = 0, vmax = 20)
+cmap = mpl.cm.get_cmap("binary").copy() # I get an error without mpl....copy()
+cmap.set_bad(color = 'purple')
+fig, plot = plt.subplots(figsize = (10, 10))
+plot.matshow(mapTemp, cmap = cmap, vmin = 0, vmax = 15)
 for i in range(maxVal):
     for j in range(maxVal):
         c = map[j, i]
-        plot.text(i, j, str(c), va ='center', ha ='center')
+        plot.text(i, j, str(c), va = 'center', ha = 'center')
 
-print('The path length is: ' + str(distMap[maxVal - 1, maxVal - 1]))
-print('The mean path should have been: ' + str(maxVal * maxVal))
+print('Path Length = ' + str(distMap[maxVal - 1, maxVal - 1]))
+print('Mean Path Length = ' + str(maxVal * maxVal))
 
-plot = plt.imshow(map, cmap)
-plot = plt.show()
+plt.show()
