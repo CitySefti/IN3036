@@ -4,7 +4,7 @@ import matplotlib as mpl
 
 minVal = 0
 maxVal = 10
-map = np.random.randint(1, maxVal, size=(maxVal, maxVal))
+map = np.random.randint(minVal, maxVal, size=(maxVal, maxVal))
 
 # Auxiliary arrays and variables
 distMap = np.ones((maxVal, maxVal), dtype=int) * np.Infinity
