@@ -1,29 +1,23 @@
 import numpy as np
 import time
 
-trainFile = open("data/mnist_train.csv")
-trainData = trainFile.readlines()
-trainFile.close()
-
-testFile = open("data/mnist_test.csv")
-testData = testFile.readlines()
-testFile.close()
-
 class SigmoidNetwork:
     def __init__(self, sizes, epochs, learnRate):
         self.sizes = sizes
         self.epochs = epochs
         self.learnRate = learnRate
 
+        # Network structure
         inputLayer = self.sizes[0]
         hiddenOne = self.sizes[1]
         hiddenTwo = self.sizes[2]
         outputLayer = self.sizes[3]
 
+        # Weights
         self.parameters = {
-            's1':np.random.randn(hiddenOne, inputLayer) * np.sqrt(1. / hiddenOne),
-            's2':np.random.randn(hiddenTwo, hiddenOne) * np.sqrt(1. / hiddenTwo),
-            's3':np.random.randn(outputLayer, hiddenTwo) * np.sqrt(1. / outputLayer),
+            'w1':np.random.randn(hiddenOne, inputLayer) * np.sqrt(1. / hiddenOne),
+            'w2':np.random.randn(hiddenTwo, hiddenOne) * np.sqrt(1. / hiddenTwo),
+            'w3':np.random.randn(outputLayer, hiddenTwo) * np.sqrt(1. / outputLayer),
         }
 
     def SigmoidLayer(self, input, derivative=False):
@@ -44,16 +38,16 @@ class SigmoidNetwork:
         parameters['a0'] = input
 
         # hiddenOne
-        parameters['f1'] = np.dot(parameters['s1'], parameters['a0'])
-        parameters['a1'] = self.SigmoidLayer(parameters['f1'])
+        parameters['z1'] = np.dot(parameters['w1'], parameters['a0'])
+        parameters['a1'] = self.SigmoidLayer(parameters['z1'])
 
         # hiddenTwo
-        parameters['f2'] = np.dot(parameters['s2'], parameters['a1'])
-        parameters['a2'] = self.SigmoidLayer(parameters['f2'])
+        parameters['z2'] = np.dot(parameters['w2'], parameters['a1'])
+        parameters['a2'] = self.SigmoidLayer(parameters['z2'])
 
         # outputLayer
-        parameters['f3'] = np.dot(parameters['s3'], parameters['a2'])
-        parameters['a3'] = self.SigmoidLayer(parameters['f3'])
+        parameters['z3'] = np.dot(parameters['w3'], parameters['a2'])
+        parameters['a3'] = self.SigmoidLayer(parameters['z3'])
 
         return parameters['a3']
 
@@ -61,28 +55,29 @@ class SigmoidNetwork:
         parameters = self.parameters
         updates = {}
 
-        # s3 update
-        updater = 2 * (output - input) / output.shape[0] * self.SoftmaxLayer(parameters['f3'], derivative=True)
-        updates['s3'] = np.outer(updater, parameters['a2'])
+        # w3 update
+        updater = 2 * (output - input) / output.shape[0] * self.SoftmaxLayer(parameters['z3'], derivative=True)
+        updates['w3'] = np.outer(updater, parameters['a2'])
 
-        # s2 update
-        updater = np.dot(parameters['s3'].T, updater) * self.SoftmaxLayer(parameters['f2'], derivative=True)
-        updates['s2'] = np.outer(updater, parameters['a1'])
+        # w2 update
+        updater = np.dot(parameters['w3'].T, updater) * self.SoftmaxLayer(parameters['z2'], derivative=True)
+        updates['w2'] = np.outer(updater, parameters['a1'])
 
-        # s1 update
-        updater = np.dot(parameters['s2'].T, updater) * self.SoftmaxLayer(parameters['f1'], derivative=True)
-        updates['s1'] = np.outer(updater, parameters['a0'])
+        # w1 update
+        updater = np.dot(parameters['w2'].T, updater) * self.SoftmaxLayer(parameters['z1'], derivative=True)
+        updates['w1'] = np.outer(updater, parameters['a0'])
 
         return updates
 
-    def updateNetwork(self, updates):
+    # Optimizer that controls the weight
+    def optimizer(self, updates):
         for key, value in updates.items():
             self.parameters[key] -= self.learnRate * value
 
-    def accuracyCalc(self, workers):
+    def accuracyCalc(self, data, workers):
         accuracies = []
 
-        for i in trainData:
+        for i in data:
             values = i.split(',')
             input = (np.asfarray(values[1:]) / 255.0 * 0.99) + 0.01
             target = np.zeros(workers) + 0.01
@@ -106,14 +101,12 @@ class SigmoidNetwork:
                 output = self.forwardPass(input)
 
                 updates = self.backwardPass(target, output)
-                self.updateNetwork(updates)
+                self.optimizer(updates)
 
-            accuracy = self.accuracyCalc(workers)
+            trainAccuracy = self.accuracyCalc(data, workers)
+            testAccuracy = self.accuracyCalc(test, workers)
 
-            print("Epoch ", i + 1)
-            print("Time = ", time.time() - start)
-            print("Accuracy = ", accuracy * 100)
-
-    def evaluate(self, input, target):
-        output = self.forward(input)
-        loss = self.lossFunction()
+            print("Epoch", i + 1)
+            print("Time =", time.time() - start)
+            print("Train Accuracy =", trainAccuracy * 100)
+            print("Test Accuracy =", testAccuracy * 100)
