@@ -1,23 +1,20 @@
 from tkinter import *
-from subprocess import call
 from traverse import Traverse
 
-"""
-def click():
-    call(["python", "traverse.py"])
-"""
+# Create frame/window
 window = Tk(className="Task 1")
 window.geometry("350x350")
 
+# Make Labels and input boxes for parameters
 minLabel = Label(window, text="Minimum")
 minLabel.place(x=80, y=50)
-cellMinInput = Entry(window)
-cellMinInput.place(x=180, y=50)
+minInput = Entry(window)
+minInput.place(x=180, y=50)
 
 maxLabel = Label(window, text="Maximum")
 maxLabel.place(x=80, y=100)
-cellMaxInput = Entry(window)
-cellMaxInput.place(x=180, y=100)
+maxInput = Entry(window)
+maxInput.place(x=180, y=100)
 
 widthLabel = Label(window, text="Width")
 widthLabel.place(x=80, y=150)
@@ -30,27 +27,33 @@ heightInput = Entry(window)
 heightInput.place(x=180, y=200)
 
 
+# Implements button functionality
 def click():
-    if cellMinInput.get() != 0:
-        min = int(cellMinInput.get())
+    # Enough checks there to prevent freezing/crashing but no error box
+    if minInput.get() != 0:
+        if minInput.get().isnumeric():
+            min = int(minInput.get())
 
-    if cellMaxInput.get() != 0:
-        max = int(cellMaxInput.get())
+    if maxInput.get() != 0:
+        if maxInput.get().isnumeric():
+            max = int(maxInput.get())
 
-    if cellMinInput.get() != 0:
-        width = int(widthInput.get())
+    if widthInput.get() != 0:
+        if widthInput.get().isnumeric():
+            width = int(widthInput.get())
 
-    if cellMinInput.get() != 0:
-        height = int(heightInput.get())
+    if heightInput.get() != 0:
+        if heightInput.get().isnumeric():
+            height = int(heightInput.get())
 
-    newAgent = Traverse(cellMin=min, cellMax=max, gridWidth=width, gridHeight=height)
+    # Creates new traversable map with set parameters, runs it, which returns results.
+    newAgent = Traverse(cellMin=min, cellMax=max, mapWidth=width, mapHeight=height)
     newAgent.run()
 
+
+# Button, the idea here was to add other buttons for other traverse options (e.g. with obstacles)
 button = Button(window, text="Traverse", command=click, font="Arial")
 button.place(x=130, y=250)
 
-# idea is to add other buttons for other traverse options (e.g. with obstacles)
+# Have frame/window be visible
 window.mainloop()
-
-#hello = Traverse(cellMin=0, cellMax=10, gridWidth=10, gridHeight=10)
-#hello.run()
