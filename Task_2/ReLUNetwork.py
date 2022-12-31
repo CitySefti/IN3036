@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import time
 
 class ReLUNetwork:
@@ -7,7 +8,7 @@ class ReLUNetwork:
         self.epochs = epochs
         self.learnRate = learnRate
 
-        # Network structure
+        # Network structure, giving each layer a number of nodes
         inputLayer = self.sizes[0]
         hiddenOne = self.sizes[1]
         hiddenTwo = self.sizes[2]
@@ -20,12 +21,12 @@ class ReLUNetwork:
             'w3': np.random.randn(outputLayer, hiddenTwo) * np.sqrt(1. / outputLayer),
         }
 
-    def ReLULayer(self, input, derivative=False):
+    def reluLayer(self, input, derivative=False):
         if derivative:
             return 1 * (input > 0) # Backward
         return np.maximum(0, input)  # Forward
 
-    def SoftmaxLayer(self, input, derivative=False):
+    def softmaxLayer(self, input, derivative=False):
         exponents = np.exp(input - np.max(input))
         if derivative:
             return exponents / np.sum(exponents) * (1 - exponents / np.sum(exponents))  # Backward
@@ -39,15 +40,15 @@ class ReLUNetwork:
 
         # hiddenOne
         parameters['z1'] = np.dot(parameters['w1'], parameters['a0'])
-        parameters['a1'] = self.ReLULayer(parameters['z1'])
+        parameters['a1'] = self.reluLayer(parameters['z1'])
 
         # hiddenTwo
         parameters['z2'] = np.dot(parameters['w2'], parameters['a1'])
-        parameters['a2'] = self.ReLULayer(parameters['z2'])
+        parameters['a2'] = self.reluLayer(parameters['z2'])
 
         # outputLayer
         parameters['z3'] = np.dot(parameters['w3'], parameters['a2'])
-        parameters['a3'] = self.ReLULayer(parameters['z3'])
+        parameters['a3'] = self.reluLayer(parameters['z3'])
 
         return parameters['a3']
 
@@ -56,15 +57,15 @@ class ReLUNetwork:
         updates = {}
 
         # w3 update
-        updater = 2 * (output - input) / output.shape[0] * self.SoftmaxLayer(parameters['z3'], derivative=True)
+        updater = 2 * (output - input) / output.shape[0] * self.softmaxLayer(parameters['z3'], derivative=True)
         updates['w3'] = np.outer(updater, parameters['a2'])
 
         # w2 update
-        updater = np.dot(parameters['w3'].T, updater) * self.SoftmaxLayer(parameters['z2'], derivative=True)
+        updater = np.dot(parameters['w3'].T, updater) * self.softmaxLayer(parameters['z2'], derivative=True)
         updates['w2'] = np.outer(updater, parameters['a1'])
 
         # w1 update
-        updater = np.dot(parameters['w2'].T, updater) * self.SoftmaxLayer(parameters['z1'], derivative=True)
+        updater = np.dot(parameters['w2'].T, updater) * self.softmaxLayer(parameters['z1'], derivative=True)
         updates['w1'] = np.outer(updater, parameters['a0'])
 
         return updates
@@ -74,6 +75,7 @@ class ReLUNetwork:
         for key, value in updates.items():
             self.parameters[key] -= self.learnRate * value
 
+    # This is for calculating accuracy
     def accuracyCalc(self, data, workers):
         accuracies = []
 
@@ -89,10 +91,13 @@ class ReLUNetwork:
         return np.mean(accuracies)
 
     def train(self, data, test, workers):
+        accuracies = []
+
         start = time.time()
 
         print("ReLU Network: ")
         for i in range(self.epochs):
+            print("Epoch " + str(i + 1))
             for j in data:
                 values = j.split(',')
                 input = (np.asfarray(values[1:]) / 255.0 * 0.99) + 0.01
@@ -103,10 +108,10 @@ class ReLUNetwork:
                 updates = self.backwardPass(target, output)
                 self.optimizer(updates)
 
-            trainAccuracy = self.accuracyCalc(data, workers)
             testAccuracy = self.accuracyCalc(test, workers)
 
-            print("Epoch", i + 1)
-            print("Time =", time.time() - start)
-            print("Train Accuracy =", trainAccuracy * 100)
-            print("Test Accuracy =", testAccuracy * 100)
+            print("Time = " + str(time.time() - start) + " Accuracy = " + str(testAccuracy * 100))
+
+        plt.subplots(figsize=(10, 10))
+        plt.plot(range(self.epochs), accuracies)
+        plt.show()

@@ -1,5 +1,6 @@
 from tkinter import *
 from traverse import Traverse
+from traversepq import TraversePQ
 
 # Create frame/window
 window = Tk(className="Task 1")
@@ -47,8 +48,11 @@ def click():
             height = int(heightInput.get())
 
     # Creates new traversable map with set parameters, runs it, which returns results.
-    newAgent = Traverse(cellMin=min, cellMax=max, mapWidth=width, mapHeight=height)
-    newAgent.run()
+    #newAgent = Traverse(cellMin=min, cellMax=max, mapWidth=width, mapHeight=height)
+    #newAgent.run()
+
+    pqAgent = TraversePQ(cellMin=min, cellMax=max, mapWidth=width, mapHeight=height)
+    pqAgent.run()
 
 
 # Button, the idea here was to add other buttons for other traverse options (e.g. with obstacles)

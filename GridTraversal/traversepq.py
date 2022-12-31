@@ -2,8 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import time
+import heapq
 
-class Traverse:
+
+class TraversePQ:
 
     def __init__(self, cellMin, cellMax, mapWidth, mapHeight):
         self.cellMin = cellMin
@@ -19,54 +21,53 @@ class Traverse:
 
         # initiate all auxiliary arrays and variables
         path = []
+        heap = []
         pathCount = 0
         distMap = np.ones((width, height), dtype=int) * np.Infinity
         distMap[0, 0] = 0
         originMap = np.ones((width, height), dtype=int) * np.nan
         visited = np.zeros((width, height), dtype=bool)
         finished = False
-        xPos = int(0)
-        yPos = int(0)
         count = 0
         mapSum = 0
         mapTemp = map.astype(float)
+
+        heapq.heappush(heap, (0, (0, 0)))
 
         # Start timer for finding the shortest path specifically
         start = time.time()
 
         # Will loop until the end goal is reached and shortest path is found.
-        while not finished:
+        while heap:
+            # extract cell with minimum distance
+            dist, (xPos, yPos) = heapq.heappop(heap)
+
             # Checks the adjacent cells and compares to the current one, moves current position accordingly.
             if xPos > 0:
                 if distMap[xPos - 1, yPos] > map[xPos - 1, yPos] + distMap[xPos, yPos] and not visited[xPos - 1, yPos]:
                     distMap[xPos - 1, yPos] = map[xPos - 1, yPos] + distMap[xPos, yPos]
                     originMap[xPos - 1, yPos] = np.ravel_multi_index([xPos, yPos], (width, height))
+                    heapq.heappush(heap, (distMap[xPos - 1, yPos], (xPos - 1, yPos)))
 
             if xPos < width - 1:
                 if distMap[xPos + 1, yPos] > map[xPos + 1, yPos] + distMap[xPos, yPos] and not visited[xPos + 1, yPos]:
                     distMap[xPos + 1, yPos] = map[xPos + 1, yPos] + distMap[xPos, yPos]
                     originMap[xPos + 1, yPos] = np.ravel_multi_index([xPos, yPos], (width, height))
+                    heapq.heappush(heap, (distMap[xPos + 1, yPos], (xPos + 1, yPos)))
 
             if yPos > 0:
                 if distMap[xPos, yPos - 1] > map[xPos, yPos - 1] + distMap[xPos, yPos] and not visited[xPos, yPos - 1]:
                     distMap[xPos, yPos - 1] = map[xPos, yPos - 1] + distMap[xPos, yPos]
                     originMap[xPos, yPos - 1] = np.ravel_multi_index([xPos, yPos], (width, height))
+                    heapq.heappush(heap, (distMap[xPos, yPos - 1], (xPos, yPos - 1)))
 
             if yPos < height - 1:
                 if distMap[xPos, yPos + 1] > map[xPos, yPos + 1] + distMap[xPos, yPos] and not visited[xPos, yPos + 1]:
                     distMap[xPos, yPos + 1] = map[xPos, yPos + 1] + distMap[xPos, yPos]
                     originMap[xPos, yPos + 1] = np.ravel_multi_index([xPos, yPos], (width, height))
+                    heapq.heappush(heap, (distMap[xPos, yPos + 1], (xPos, yPos + 1)))
 
             visited[xPos, yPos] = True
-            distMapTemp = distMap
-            distMapTemp[np.where(visited)] = np.Infinity
-
-            # Find the shortest path
-            minPath = np.unravel_index(np.argmin(distMapTemp), np.shape(distMapTemp))
-            xPos = minPath[0]
-            yPos = minPath[1]
-            if xPos == width - 1 and yPos == height - 1:
-                finished = True
             count = count + 1
 
         # Gets the current time after shortest path is found and calculates elapsed time.
@@ -86,7 +87,6 @@ class Traverse:
             xPos = xy[0]
             yPos = xy[1]
             mapTemp[int(xPos), int(yPos)] = np.nan
-            path.append([int(xPos), int(yPos)])
 
         # Visualize and output
         cMap = mpl.cm.get_cmap("binary")
