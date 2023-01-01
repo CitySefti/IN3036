@@ -47,9 +47,9 @@ def click():
         if heightInput.get().isnumeric():
             height = int(heightInput.get())
 
-    # Creates new traversable map with set parameters, runs it, which returns results.
-    #newAgent = Traverse(cellMin=min, cellMax=max, mapWidth=width, mapHeight=height)
-    #newAgent.run()
+    #Creates new traversable map with set parameters, runs it, which returns results.
+    newAgent = Traverse(cellMin=min, cellMax=max, mapWidth=width, mapHeight=height)
+    newAgent.run()
 
     pqAgent = TraversePQ(cellMin=min, cellMax=max, mapWidth=width, mapHeight=height)
     pqAgent.run()
